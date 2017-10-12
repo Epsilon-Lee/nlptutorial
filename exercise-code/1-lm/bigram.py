@@ -30,13 +30,13 @@ class InterpolatedLanguageModel:
     self.filePath = filePath
     self.n = n
     self.cut_freq = cut_freq
-  
+
   # n: means compute 1 to `n` gram freq
   def trainModel(self):
     filePath = self.filePath
     n = self.n
     self.uniTotalFreq = 0
-    with open(filePath, 'r') as f:
+    with open(filePath, 'r', encoding="utf-8") as f:
       for line in f.readlines():
         words = line.split()
         words.append("</s>")
@@ -78,9 +78,9 @@ class InterpolatedLanguageModel:
       print 'lambda_w;', lambda_w, 'u_w:', u_w
       if self.grams[words[1]] > self.cut_freq:
         print 'words[1]:', words[1], 'freq:', self.grams[words[1]]
-        return lambda_w * self.grams[gram] / self.grams[words[0]] + (1 - lambda_w) * self.grams[words[0]] / self.uniTotalFreq
+        return (lambda_w * self.grams[gram] / self.grams[words[0]] + (1 - lambda_w) * self.grams[words[0]] / self.uniTotalFreq) * self.queryFreq(words[0])
       else:
-        return 1. / (N * N)
+        return 1. / (N * N) * self.queryFreq(words[0])
 
     # ngram: n > 1
     history = " ".join(words[:-1])
@@ -93,7 +93,7 @@ class InterpolatedLanguageModel:
     assert testFilePath is not None
     entropy = .0
     ngram_count = 0
-    with open(testFilePath, 'r') as f:
+    with open(testFilePath, 'r', encoding="utf-8") as f:
       for line in f.readlines():
         words = line.split()
         words.insert(0, "<s>")
@@ -119,7 +119,7 @@ class InterpolatedLanguageModel:
     assert testFilePath is not None
     known_word_count = 0
     word_count = 0
-    with open(testFilePath, 'r') as f:
+    with open(testFilePath, 'r', encoding="utf-8") as f:
       for line in f.readlines():
         words = line.split()
         word_count += len(words)
